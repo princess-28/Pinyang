@@ -1,45 +1,28 @@
 <?php
-// Start the session
+// Assume connection to database and validation have been done
 session_start();
+include("conn.php"); // Your DB connection
 
-// Database connection details
-$servername = "localhost";
-$username = "jem"; // replace with your MySQL username
-$password = "jem"; // replace with your MySQL password
-$database = "form"; // database name
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Collect form data
+    $firstname = $_POST['firstname'];
+    $middlename = $_POST['middlename'];
+    $lastname = $_POST['lastname'];
+    $age = $_POST['age'];
+    $address = $_POST['address'];
+    $coursec = $_POST['coursec'];
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $database);
+    // Prepare and execute the insert query
+    $sql = "INSERT INTO user_data (firstname, middlename, lastname, age, address, coursec) VALUES ('$firstname', '$middlename', '$lastname', '$age', '$address', '$coursec')";
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    if (mysqli_query($conn, $sql)) {
+        $_SESSION['form_status'] = 'success'; // Set session variable to show success modal
+    } else {
+        $_SESSION['form_status'] = 'error'; // Set session variable to show error modal
+    }
+    
+    // Redirect back to index.php
+    header('Location: index.php');
+    exit();
 }
-
-// Get form data
-$firstname = $_POST['firstname'];
-$middlename = $_POST['middlename'];
-$lastname = $_POST['lastname'];
-$age = $_POST['age'];
-$address = $_POST['address'];
-$coursec = $_POST['coursec'];
-
-// Insert data into table
-$sql = "INSERT INTO user_data (firstname, middlename, lastname, age, address, coursec)
-        VALUES ('$firstname', '$middlename', '$lastname', '$age', '$address', '$coursec')";
-
-if ($conn->query($sql) === TRUE) {
-    // Set success message in session
-    $_SESSION['message'] = "New record created successfully!";
-} else {
-    // Set error message in session
-    $_SESSION['message'] = "Error: " . $sql . "<br>" . $conn->error;
-}
-
-// Close the connection
-$conn->close();
-
-// Redirect back to index.php
-header("Location: index.php");
-exit;
 ?>
